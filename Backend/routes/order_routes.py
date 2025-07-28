@@ -28,7 +28,7 @@ def get_order(order_id):
     cur.execute("""
         SELECT oi.order_item_id, oi.product_id, p.name AS product_name, oi.quantity, oi.price
         FROM order_items oi
-        JOIN products p ON oi.product_id = p.product_id
+        JOIN product p ON oi.product_id = p.product_id
         WHERE oi.order_id = %s
     """, (order_id,))
     items = cur.fetchall()
