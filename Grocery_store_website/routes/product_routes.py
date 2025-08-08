@@ -27,10 +27,10 @@ def create_product():
     data = request.json
     cur = mysql.connection.cursor()
     cur.execute("""
-        INSERT INTO product (name, category,quantity, unit,price)
+        INSERT INTO product (name, category, price, discount, image_url)
         VALUES (%s, %s, %s, %s, %s)
     """, (
-        data['name'], data['category'], data['quantity'],data['unit'],data['price']
+        data['name'], data['category'], data['price'], data['discount'], data['image_url']
     ))
     mysql.connection.commit()
     return jsonify({"message": "Product added successfully"}), 201
@@ -40,10 +40,10 @@ def update_product(id):
     data = request.json
     cur = mysql.connection.cursor()
     cur.execute("""
-    UPDATE product SET name=%s, category=%s, quantity=%s, unit=%s, price=%s
-    WHERE product_id = %s
+        UPDATE product SET name=%s, category=%s, price=%s, discount=%s, image_url=%s
+        WHERE product_id = %s
     """, (
-        data['name'], data['category'], data['quantity'], data['unit'], data['price'], id
+        data['name'], data['category'], data['price'], data['discount'], data['image_url'], id
     ))
     mysql.connection.commit()
     return jsonify({"message": "Product updated successfully"})
