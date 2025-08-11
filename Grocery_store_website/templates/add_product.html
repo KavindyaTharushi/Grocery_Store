@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Freshcery | Register</title>
+    <title>Freshcery | Add Product</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,500,600,700,800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Lora:400,400i,700,700i&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Amatic+SC:400,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700&display=swap" rel="stylesheet">
 
     <!-- CSS from Vegefoods -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/open-iconic-bootstrap.min.css') }}">
@@ -23,6 +21,71 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/flaticon.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/icomoon.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        /* Hero Overlay */
+        .hero-wrap {
+            position: relative;
+            background-size: cover;
+            background-position: center;
+        }
+        .hero-wrap::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+        }
+        .hero-wrap .text-center {
+            position: relative;
+            z-index: 2;
+            color: #fff;
+        }
+
+        /* Form Styling */
+        .contact-form {
+            border-radius: 15px;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.1);
+            background: #fff !important;
+            transition: all 0.3s ease-in-out;
+        }
+        .contact-form:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            padding: 12px;
+            transition: border-color 0.2s ease-in-out;
+        }
+        .form-control:focus {
+            border-color: #82ae46;
+            box-shadow: 0 0 5px rgba(130,174,70,0.5);
+        }
+        .btn-primary {
+            background: #82ae46;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            transition: background 0.3s ease-in-out;
+        }
+        .btn-primary:hover {
+            background: #6f943b;
+        }
+
+        /* Section Padding Fix */
+        .ftco-section {
+            padding: 60px 0 !important;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 50px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+    </style>
 </head>
 
 <body class="goto-here">
@@ -31,54 +94,78 @@
     <div class="hero-wrap hero-bread" style="background-image: url('{{ url_for('static', filename='images/bg_1.jpg') }}')">
         <div class="container">
             <div class="row no-gutters slider-text align-items-center justify-content-center">
-                <div class="col-md-9 ftco-animate text-center">
-                    <p class="breadcrumbs"><span class="mr-2"><a href="{{ url_for('add_product') }}">Home</a></span> <span>Add product</span></p>
-                    <h1 class="mb-0 bread">Add product</h1>
+                <div class="col-md-9 text-center">
+                    <p class="breadcrumbs"><span class="mr-2"><a href="{{ url_for('product_page') }}">Home</a></span> <span>Add Product</span></p>
+                    <h1 class="mb-0 bread">Add a New Product</h1>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Register Form Section -->
+    <!-- Add Product Form Section -->
     <section class="ftco-section contact-section">
         <div class="container">
-            <div class="row block-9">
-                <div class="col-md-6 ftco-animate">
-                    <form action="{{ url_for('add_product') }}" method="POST" enctype="multipart/form-data" class="bg-light p-5 contact-form">
-    <div class="form-group">
-        <input type="text" class="form-control" name="product_name" placeholder="Enter Product Name" required>
-    </div>
-    <div class="form-group">
-        <select class="form-control" name="category" required>
-            <option value="" disabled selected>Select Category</option>
-            <option value="vegetable">Vegetable</option>
-            <option value="fruit">Fruit</option>
-            <option value="juice">Juice</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <input type="tel" class="form-control" name="price" placeholder="Enter price" required>
-    </div>
-    <div class="form-group">
-        <input type="text" class="form-control" name="discount" placeholder="Enter discount" required>
-    </div>
-    <div class="form-group">
-        <input type="file" class="form-control" name="image" accept="image/*" required>
-    </div>
-    
-    <div class="form-group">
-        <input type="submit" value="Add Product" class="btn btn-primary py-3 px-5">
-    </div>
-</form>
 
+            <div class="row mb-4">
+            <div class="col text-right">
+                <a href="{{ url_for('product_page') }}" class="btn btn-primary py-2 px-4">
+                    <i class="ion-ios-add"></i>  All Products
+                </a>
+            </div>
+        </div>
+
+            <div class="row justify-content-center">
+                <div class="col-md-7">
+                    <form action="{{ url_for('add_product') }}" method="POST" enctype="multipart/form-data" class="p-5 contact-form">
+                        <h3 class="mb-4 text-center">Product Details</h3>
+
+                        <div class="form-group">
+                            <input type="text" class="form-control" name="product_name" placeholder="Enter Product Name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <select class="form-control" name="category" required>
+                                <option value="" disabled selected>Select Category</option>
+                                <option value="vegetable">Vegetable</option>
+                                <option value="fruit">Fruit</option>
+                                <option value="juice">Juice</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="number" step="0.01" class="form-control" name="price" placeholder="Enter Price" required>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="number" step="0.01" class="form-control" name="discount" placeholder="Enter Discount (%)" required>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="file" class="form-control" name="image" accept="image/*" onchange="previewImage(event)"required>
+                        </div>
+
+                        <img id="preview" style="max-width: 100%; margin-top: 10px; display:none;">
+
+                        <div class="form-group text-center">
+                            <input type="submit" value="Add Product" class="btn btn-primary">
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </section>
 
+    <script>
+function previewImage(event) {
+    var preview = document.getElementById('preview');
+    preview.src = URL.createObjectURL(event.target.files[0]);
+    preview.style.display = 'block';
+}
+</script>
+
     <!-- Footer -->
-    <footer class="ftco-footer ftco-section">
-        <div class="container text-center">
+    <footer class="ftco-footer ftco-section text-center">
+        <div class="container">
             <p>&copy; {{ current_year }} Freshcery | All rights reserved</p>
         </div>
     </footer>
@@ -97,8 +184,6 @@
     <script src="{{ url_for('static', filename='js/jquery.animateNumber.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap-datepicker.js') }}"></script>
     <script src="{{ url_for('static', filename='js/scrollax.min.js') }}"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&sensor=false"></script>
-    <script src="{{ url_for('static', filename='js/google-map.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Update Product</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,500,600,700,800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Lora:400,400i,700,700i&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Amatic+SC:400,700&display=swap" rel="stylesheet">
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/open-iconic-bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animate.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <!-- Header -->
+    <div class="hero-wrap hero-bread" style="background-image: url('{{ url_for('static', filename='images/bg_1.jpg') }}')">
+        <div class="container">
+            <div class="row no-gutters slider-text align-items-center justify-content-center">
+                <div class="col-md-9 ftco-animate text-center">
+                    <p class="breadcrumbs">
+                        <span class="mr-2"><a href="{{ url_for('product_page') }}">Home</a></span>
+                        <span>Update Product</span>
+                    </p>
+                    <h1 class="mb-0 bread">Update Product</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Form -->
+    <section class="ftco-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+
+                    <form action="{{ url_for('update_product', product_id=product.product_id) }}" method="POST" enctype="multipart/form-data" class="bg-light p-5 contact-form shadow-sm rounded">
+                        
+                        <div class="form-group">
+                            <label for="name" class="font-weight-bold">Product Name</label>
+                            <input type="text" id="name" name="name" class="form-control" value="{{ product.name }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="price" class="font-weight-bold">Price (Rs.)</label>
+                            <input type="number" id="price" name="price" step="0.01" class="form-control" value="{{ product.price }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="discount" class="font-weight-bold">Discount (%)</label>
+                            <input type="number" id="discount" name="discount" step="0.01" class="form-control" value="{{ product.discount }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="category" class="font-weight-bold">Category</label>
+                            <select id="category" name="category" class="form-control" required>
+                                <option value="Vegetables" {% if product.category == 'Vegetables' %}selected{% endif %}>Vegetables</option>
+                                <option value="Fruits" {% if product.category == 'Fruits' %}selected{% endif %}>Fruits</option>
+                                <option value="Juice" {% if product.category == 'Juice' %}selected{% endif %}>Juice</option>
+                                <option value="Dried" {% if product.category == 'Dried' %}selected{% endif %}>Dried</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="image" class="font-weight-bold">Product Image</label><br>
+                            {% if product.image %}
+                                <img src="{{ url_for('static', filename='uploads/' ~ product.image) }}" alt="{{ product.name }}" width="120" class="img-thumbnail mb-2">
+                            {% endif %}
+                            <input type="file" id="image" name="image" class="form-control-file">
+                            <small class="form-text text-muted">Leave blank to keep the current image.</small>
+                        </div>
+
+                        <div class="form-group text-center mt-4">
+                            <button type="submit" class="btn btn-primary py-2 px-4">Update Product</button>
+                            <a href="{{ url_for('product_page') }}" class="btn btn-secondary py-2 px-4">Cancel</a>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- JS Files -->
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+</body>
+</html>
