@@ -4,6 +4,7 @@ order_bp = Blueprint('order', __name__)
 mysql = None  # will be injected from app.py
 
 # GET all orders
+
 @order_bp.route('/order', methods=['GET'])
 def get_orders():
     cur = mysql.connection.cursor()
