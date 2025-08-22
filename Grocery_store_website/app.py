@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for,session
 from werkzeug.utils import secure_filename
 import os
 from db_config import init_db
@@ -28,6 +28,10 @@ app.register_blueprint(customer_module.customer_bp)
 app.register_blueprint(order_module.order_bp)
 
 products = []
+
+@app.route("/home")
+def home():
+    return render_template("home.html")
 
 @app.route('/add-product', methods=['GET', 'POST'])
 def add_product():
@@ -122,10 +126,30 @@ def register():
         mysql.connection.commit()
         cur.close()
         
-        return redirect(url_for('register'))
+        return redirect(url_for('login'))
 
       return render_template('register.html')
 
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM customer WHERE email=%s AND password=%s", (email, password))
+        user = cur.fetchone()
+        cur.close()
+
+        if user:
+             
+            return redirect(url_for('product_page'))  
+        else:
+            error = "Invalid email or password!"
+            return render_template('login.html', error=error)
+
+    return render_template('login.html')
 
 
 if __name__ == '__main__':
