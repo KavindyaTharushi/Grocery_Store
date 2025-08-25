@@ -1,100 +1,65 @@
 from flask import Blueprint, request, jsonify
 
 order_bp = Blueprint('order', __name__)
-mysql = None  # will be injected from app.py
-
-# GET all orders
+mysql = None
 
 @order_bp.route('/order', methods=['GET'])
-def get_orders():
+def api_get_orders():
     cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM orders")
-    orders = cur.fetchall()
-    columns = [col[0] for col in cur.description]
-    result = [dict(zip(columns, row)) for row in orders]
-    return jsonify(result)
+    cur.execute(
+        '''
+        SELECT o.order_id, o.customer_id, c.name as customer_name, o.total_price, o.order_date
+        FROM orders o JOIN customer c ON o.customer_id=c.customer_id
+        ORDER BY o.order_id DESC
+        '''
+    )
+    return jsonify(cur.fetchall())
 
-# GET a specific order with items
-@order_bp.route('/order/<int:order_id>', methods=['GET'])
-def get_order(order_id):
+@order_bp.route('/order/<int:oid>', methods=['GET'])
+def api_get_order(oid):
     cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM orders WHERE order_id = %s", (order_id,))
+    cur.execute("SELECT * FROM orders WHERE order_id=%s", (oid,))
     order = cur.fetchone()
     if not order:
-        return jsonify({"message": "Order not found"}), 404
-
-    columns = [col[0] for col in cur.description]
-    order_data = dict(zip(columns, order))
-
-    cur.execute("""
-        SELECT oi.order_item_id, oi.product_id, p.name AS product_name, oi.quantity, oi.price
-        FROM order_items oi
-        JOIN product p ON oi.product_id = p.product_id
-        WHERE oi.order_id = %s
-    """, (order_id,))
+        return jsonify({'message':'Not found'}), 404
+    cur.execute(
+        '''
+        SELECT oi.order_item_id, oi.product_id, p.name, oi.quantity, oi.price
+        FROM order_items oi JOIN product p ON oi.product_id=p.product_id
+        WHERE oi.order_id=%s
+        ''',
+        (oid,)
+    )
     items = cur.fetchall()
-    item_columns = [col[0] for col in cur.description]
-    order_data['items'] = [dict(zip(item_columns, row)) for row in items]
+    return jsonify({'order': order, 'items': items})
 
-    return jsonify(order_data)
-
-# POST create new order
 @order_bp.route('/order', methods=['POST'])
-def create_order():
-    data = request.json
-    customer_id = data['customer_id']
-    status = data.get('status', 'Pending')
-    items = data['items']  # list of {product_id, quantity, price}
-
-    total_price = sum(item['quantity'] * item['price'] for item in items)
-
+def api_create_order():
+    data = request.json or {}
+    customer_id = data.get('customer_id')
+    items = data.get('items', [])
     cur = mysql.connection.cursor()
-    cur.execute("INSERT INTO orders (customer_id, status, total_price) VALUES (%s, %s, %s)",
-                (customer_id, status, total_price))
-    order_id = cur.lastrowid
-
+    cur.execute("INSERT INTO orders (customer_id,total_price) VALUES (%s, 0)", (customer_id,))
+    oid = cur.lastrowid
+    total = 0.0
     for item in items:
-        cur.execute("""
-            INSERT INTO order_items (order_id, product_id, quantity, price)
-            VALUES (%s, %s, %s, %s)
-        """, (order_id, item['product_id'], item['quantity'], item['price']))
-
+        pid = int(item['product_id'])
+        qty = int(item.get('quantity',1))
+        cur.execute("SELECT price FROM product WHERE product_id=%s", (pid,))
+        price = cur.fetchone()['price']
+        total += float(price)*qty
+        cur.execute(
+            "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (%s,%s,%s,%s)",
+            (oid, pid, qty, price)
+        )
+    cur.execute("UPDATE orders SET total_price=%s WHERE order_id=%s", (total, oid))
     mysql.connection.commit()
-    return jsonify({"message": "Order created successfully", "order_id": order_id}), 201
+    return jsonify({'message':'created','order_id':oid}), 201
 
-# PUT update order status or items
-@order_bp.route('/order/<int:order_id>', methods=['PUT'])
-def update_order(order_id):
-    data = request.json
-    status = data.get('status')
-    items = data.get('items', [])  # optional, if updating items
-
+@order_bp.route('/order/<int:oid>', methods=['DELETE'])
+def api_delete_order(oid):
     cur = mysql.connection.cursor()
-
-    if status:
-        cur.execute("UPDATE orders SET status = %s WHERE order_id = %s", (status, order_id))
-
-    if items:
-        # Remove existing items
-        cur.execute("DELETE FROM order_items WHERE order_id = %s", (order_id,))
-        # Re-insert updated items
-        total_price = sum(item['quantity'] * item['price'] for item in items)
-        for item in items:
-            cur.execute("""
-                INSERT INTO order_items (order_id, product_id, quantity, price)
-                VALUES (%s, %s, %s, %s)
-            """, (order_id, item['product_id'], item['quantity'], item['price']))
-        # Update order price
-        cur.execute("UPDATE orders SET total_price = %s WHERE order_id = %s", (total_price, order_id))
-
+    cur.execute("DELETE FROM order_items WHERE order_id=%s", (oid,))
+    cur.execute("DELETE FROM orders WHERE order_id=%s", (oid,))
     mysql.connection.commit()
-    return jsonify({"message": "Order updated successfully"})
-
-# DELETE order and its items
-@order_bp.route('/order/<int:order_id>', methods=['DELETE'])
-def delete_order(order_id):
-    cur = mysql.connection.cursor()
-    cur.execute("DELETE FROM order_items WHERE order_id = %s", (order_id,))
-    cur.execute("DELETE FROM orders WHERE order_id = %s", (order_id,))
-    mysql.connection.commit()
-    return jsonify({"message": "Order deleted successfully"})
+    return jsonify({'message':'deleted'})

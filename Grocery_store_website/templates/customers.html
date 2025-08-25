@@ -44,72 +44,37 @@
 {%- endmacro %}
 
 
-{{ head('Create Order') }}
+{{ head('Customers') }}
 <div class="hero-wrap hero-bread" style="background-image: url('{{ url_for('static', filename='images/bg_1.jpg') }}');">
   <div class="container"><div class="row no-gutters slider-text align-items-center justify-content-center">
-    <div class="col-md-9 text-center"><h1 class="mb-0 bread">Create Order</h1></div>
+    <div class="col-md-9 text-center"><h1 class="mb-0 bread">Customers</h1></div>
   </div></div>
 </div>
 <section class="ftco-section">
   <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-md-10 bg-light p-4 rounded">
-        <form method="post">
-          <div class="form-group">
-            <label>Customer</label>
-            <select name="customer_id" class="form-control" required>
-              <option value="">Select customer</option>
-              {% for c in customers %}
-                <option value="{{ c.customer_id }}">{{ c.name }}</option>
-              {% endfor %}
-            </select>
-          </div>
-
-          <hr/>
-          <h5>Items</h5>
-          <div id="items">
-            <div class="form-row align-items-end mb-2 item-row">
-              <div class="col-md-6">
-                <label>Product</label>
-                <select name="product_id" class="form-control">
-                  {% for p in products %}
-                    <option value="{{ p.product_id }}">{{ p.name }} ({{ '%.2f'|format(p.price|float) }})</option>
-                  {% endfor %}
-                </select>
-              </div>
-              <div class="col-md-3">
-                <label>Quantity</label>
-                <input type="number" name="quantity" class="form-control" value="1" min="1">
-              </div>
-              <div class="col-md-3">
-                <button type="button" class="btn btn-outline-danger remove-row">Remove</button>
-              </div>
-            </div>
-          </div>
-          <button type="button" id="addItem" class="btn btn-outline-secondary mb-3">+ Add another item</button>
-
-          <div class="text-right">
-            <a href="{{ url_for('orders_page') }}" class="btn btn-outline-secondary">Cancel</a>
-            <button class="btn btn-primary">Create</button>
-          </div>
-        </form>
-      </div>
+    <div class="mb-3"><a href="{{ url_for('add_customer') }}" class="btn btn-primary">Add Customer</a></div>
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Address</th><th>Actions</th></tr></thead>
+        <tbody>
+        {% for c in customers %}
+          <tr>
+            <td>{{ c.customer_id }}</td>
+            <td>{{ c.name }}</td>
+            <td>{{ c.email }}</td>
+            <td>{{ c.phone }}</td>
+            <td>{{ c.address }}</td>
+            <td>
+              <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('edit_customer', customer_id=c.customer_id) }}">Edit</a>
+              <form action="{{ url_for('delete_customer', customer_id=c.customer_id) }}" method="post" style="display:inline-block" onsubmit="return confirm('Delete this customer?')">
+                <button class="btn btn-sm btn-outline-danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
     </div>
   </div>
 </section>
-<script>
-document.addEventListener('click', function(e){
-  if(e.target && e.target.id === 'addItem'){
-    const wrap = document.getElementById('items');
-    const row = document.querySelector('.item-row').cloneNode(true);
-    row.querySelector('input[name=quantity]').value = 1;
-    wrap.appendChild(row);
-  }
-  if(e.target && e.target.classList.contains('remove-row')){
-    const row = e.target.closest('.item-row');
-    const all = document.querySelectorAll('.item-row');
-    if(all.length > 1) row.remove();
-  }
-});
-</script>
 {{ foot() }}
